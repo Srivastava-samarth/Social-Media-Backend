@@ -49,5 +49,30 @@ func UpdatePost(c *fiber.Ctx) error{
 	if err!=nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"Invalid post id"})
 	}
-	
+	var UpdatedData models.PostModel
+	if err := c.BodyParser(UpdatedData);err!=nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"Error in parsing the data"})
+	}
+
+	UpdatedData.UpdatedAt = time.Now().Unix();
+	collection := database.MongoCollection("posts");
+	_,err = collection.UpdateOne(context.Background(),bson.M{"_id":objID},bson.M{"$set":UpdatedData},)
+	if err!=nil{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Cannot update the data"})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message":"Post updated successfully"})
+}
+
+func DeletePost(c *fiber.Ctx) error{
+	ID := c.Params("id");
+	objID,err := primitive.ObjectIDFromHex(ID)
+	if err!=nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"Invalid post id"})
+	}
+	collection := database.MongoCollection("posts");
+	_,err = collection.DeleteOne(context.Background(),bson.M{"_id":objID})
+	if err!=nil{
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error":"Failed to delete the post"})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message":"Post deleted successfully"})
 }
