@@ -43,4 +43,11 @@ func setupRoutes(app *fiber.App){
 	app.Post("/posts/:postId/comments", controllers.AddComment)
     app.Put("/posts/:postId/comments/:commentId", controllers.UpdateComment)
     app.Delete("/posts/:postId/comments/:commentId", controllers.DeleteComment)
+
+	//Likes endpoints
+	api.Post("/posts/:postId/like/:userId",controllers.LikePost)
+	api.Post("/posts/:postId/unlike/:userId",controllers.UnlikePost)
+
+	//Trending Posts
+	api.Get("/posts/trending", controllers.GetTrendingPosts)
 }
